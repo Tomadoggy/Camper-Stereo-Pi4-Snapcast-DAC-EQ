@@ -481,6 +481,28 @@ actions:
               entity_id: switch.mosfet_control_board_output16
 ```
 
+### EQ Web UI — Dashboard iframe Card
+
+The Pi EQ web interface (served at port 8080) can be embedded directly into a Home Assistant dashboard for in-cabin EQ adjustment without SSH.
+
+Add this card to any dashboard in YAML edit mode:
+
+```yaml
+type: iframe
+url: http://192.168.50.214:8080/
+aspect_ratio: 100%
+title: Music EQ
+grid_options:
+  columns: 36
+  rows: 8
+```
+
+**Notes:**
+- Pi must be reachable at `192.168.50.214` on the camper network
+- The iframe card requires HA to be accessed over HTTP (not HTTPS) or the Pi EQ service must also be served over HTTPS to avoid mixed-content browser blocking
+- `columns: 36` spans the full dashboard width; `rows: 8` provides enough height for the EQ controls to be usable
+- If the EQ UI doesn't load, verify the web service is running on the Pi: `sudo systemctl status <eq-web-service>`
+
 ### KC868-A16v3 MQTT
 - Device at `192.168.50.41`
 - MQTT broker: Mosquitto on HA host `192.168.50.100`
