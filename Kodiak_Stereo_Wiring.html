@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kodiak Stereo Wiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one wide schematic sheet (scrolls on its own), then a two-column notes grid that stacks on phones */
+:root{
+  --bg:#f3f4f1; --sheet:#fbfbf9; --fg:#1d2324; --muted:#5d6869; --line:#c9cfcc;
+  --pos:#c2352b; --gnd:#1d2324; --rem:#2a6fb0; --sig:#7a4fb3; --spk:#2f7d5b; --gold:#9a7a3c;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141817; --sheet:#1b2020; --fg:#e4e8e5; --muted:#99a4a1; --line:#3a4442;
+  --pos:#ef6a5c; --gnd:#d6dcd9; --rem:#6aa8e6; --sig:#b28ae6; --spk:#5fc092; --gold:#c8a96e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141817; --sheet:#1b2020; --fg:#e4e8e5; --muted:#99a4a1; --line:#3a4442;
+  --pos:#ef6a5c; --gnd:#d6dcd9; --rem:#6aa8e6; --sig:#b28ae6; --spk:#5fc092; --gold:#c8a96e; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:28px 48px;margin:0}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--fg);padding-bottom:10px}
+h1{font-family:var(--display);font-weight:700;font-size:2.4rem;letter-spacing:.02em;line-height:1;margin:0;text-transform:uppercase;text-wrap:balance}
+.tb{font-family:var(--mono);font-size:.78rem;color:var(--muted);display:grid;grid-template-columns:auto auto;gap:2px 14px}
+.tb b{color:var(--fg);font-weight:500}
+.sheet{background:var(--sheet);border:1px solid var(--line);overflow-x:auto}
+.sheet svg{display:block;min-width:960px;width:100%;height:auto}
+svg text{font-family:var(--mono);fill:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:26px;height:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:22px}
+section{min-width:0}
+h2{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+ol,ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+code{font-family:var(--mono);font-size:.85em}
+.flag{border-left:3px solid var(--pos);padding:8px 12px;background:color-mix(in srgb,var(--pos) 8%,transparent)}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:.82rem;font-variant-numeric:tabular-nums}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1>CPE Kodiak · Stereo Wiring</h1>
+  <div class="tb">
+    <span>Amp</span><b>Skar SK-M9005D</b>
+    <span>Source</span><b>Pi 4 + BossDAC · 192.168.50.214</b>
+    <span>Rev</span><b>B · Oct 2026</b>
+  </div>
+</header>
+
+<div class="sheet">
+<svg viewBox="0 0 1200 770" role="img" aria-label="Wiring diagram: 12V power, KC868 remote turn-on, bass remote, Pi and DAC through RCA splitters into the Skar amp, which drives four MC2.5B satellites and four TT25-8 pucks">
+  <defs>
+    <style>
+      .box{fill:var(--sheet);stroke:var(--fg);stroke-width:1.4}
+      .amp{fill:var(--sheet);stroke:var(--gold);stroke-width:2.5}
+      .t{font-size:13px}.ts{font-size:11px;fill:var(--muted)}.th{font-size:14px;font-weight:500}
+      .big{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:.06em;fill:var(--gold)}
+      .w{fill:none;stroke-width:2.6;stroke-linejoin:round}
+      .pos{stroke:var(--pos)}.gnd{stroke:var(--gnd)}.rem{stroke:var(--rem)}.sig{stroke:var(--sig)}
+      .spk{stroke:var(--spk)}.neg{stroke:var(--spk);stroke-dasharray:6 4}
+      .ctl{stroke:var(--rem);stroke-dasharray:3 4}
+      .dot{fill:var(--fg)}.pin{fill:var(--sheet);stroke:var(--fg);stroke-width:1.4}
+    </style>
+  </defs>
+
+  <!-- ===== LEFT COLUMN: sources ===== -->
+  <rect class="box" x="30" y="40" width="250" height="64"/>
+  <text class="th" x="44" y="64">12V DC BUS</text>
+  <text class="ts" x="44" y="84">Lynx Distributor positive</text>
+
+  <rect class="box" x="30" y="130" width="250" height="56"/>
+  <text class="th" x="44" y="154">NEGATIVE BUS</text>
+  <text class="ts" x="44" y="173">shared battery negative</text>
+
+  <rect class="box" x="30" y="226" width="250" height="124"/>
+  <text class="th" x="44" y="250">KC868-A16v3</text>
+  <text class="t" x="44" y="272">Y16 · switched +12V out</text>
+  <text class="ts" x="44" y="292">+12V fed to CH9–16 header</text>
+  <text class="ts" x="44" y="310">switch.mosfet_control_</text>
+  <text class="ts" x="44" y="326">board_output16</text>
+
+  <rect class="box" x="30" y="396" width="250" height="96"/>
+  <text class="th" x="44" y="420">REMOTE BASS KNOB</text>
+  <text class="ts" x="44" y="440">supplied with amp</text>
+  <text class="ts" x="44" y="458">dash-mount · CH5 level</text>
+  <text class="ts" x="44" y="476">supplied modular cable</text>
+
+  <rect class="box" x="30" y="570" width="250" height="120"/>
+  <text class="th" x="44" y="594">RASPBERRY PI 4</text>
+  <text class="t" x="44" y="614">+ BossDAC (PCM5122)</text>
+  <text class="ts" x="44" y="636">Snapclient → hw:BossDAC</text>
+  <text class="ts" x="44" y="654">AirPlay → ALSA EQ → DAC</text>
+  <text class="ts" x="44" y="674">RCA L/R out</text>
+
+  <!-- ===== WIRES: power ===== -->
+  <path class="w pos" d="M280 72 H330"/>
+  <rect x="330" y="63" width="50" height="18" rx="3" fill="var(--sheet)" stroke="var(--pos)" stroke-width="2"/>
+  <text class="ts" x="337" y="76" style="fill:var(--pos)">80A</text>
+  <text class="ts" x="320" y="54">fuse at source</text>
+  <path class="w pos" d="M380 72 H440 V130 H520"/>
+  <text class="ts" x="450" y="122">8 AWG</text>
+
+  <path class="w gnd" d="M280 160 H520"/>
+  <text class="ts" x="450" y="152">8 AWG</text>
+
+  <path class="w rem" d="M280 290 H460 V190 H520"/>
+  <text class="ts" x="300" y="282">REM · 18 AWG</text>
+
+  <path class="w ctl" d="M280 444 H470 V250 H520"/>
+
+  <!-- ===== WIRES: RCA signal, two 1-to-3 splitters ===== -->
+  <path class="w sig" d="M280 615 H320 V500 H360"/>
+  <path class="w sig" d="M280 650 H330 V630 H360"/>
+  <text class="ts" x="288" y="608">L</text>
+  <text class="ts" x="288" y="667">R</text>
+  <rect x="360" y="488" width="30" height="24" class="pin" style="stroke:var(--sig)"/>
+  <text class="ts" x="350" y="481">1→3 L</text>
+  <rect x="360" y="618" width="30" height="24" class="pin" style="stroke:var(--sig)"/>
+  <text class="ts" x="350" y="611">1→3 R</text>
+  <path class="w sig" d="M390 500 H430 V470 H520"/>
+  <path class="w sig" d="M390 500 H520"/>
+  <path class="w sig" d="M390 500 H430 V530 H520"/>
+  <path class="w sig" d="M390 630 H430 V600 H520"/>
+  <path class="w sig" d="M390 630 H520"/>
+  <path class="w sig" d="M390 630 H430 V660 H520"/>
+  <text class="ts" x="300" y="726">Top row of jacks = Left · bottom row = Right</text>
+
+  <!-- ===== AMP ===== -->
+  <rect class="amp" x="520" y="90" width="260" height="650"/>
+  <text class="big" x="640" y="118">SK-M9005D</text>
+  <!-- left pins -->
+  <g>
+    <circle class="pin" cx="520" cy="130" r="5"/><text class="t" x="534" y="135">+12V</text>
+    <circle class="pin" cx="520" cy="160" r="5"/><text class="t" x="534" y="165">GND</text>
+    <circle class="pin" cx="520" cy="190" r="5"/><text class="t" x="534" y="196">REM</text>
+    <circle class="pin" cx="520" cy="250" r="5"/><text class="t" x="534" y="256">REMOTE port</text>
+    <circle class="pin" cx="520" cy="470" r="5"/><text class="t" x="534" y="475">IN CH1 (L)</text>
+    <circle class="pin" cx="520" cy="500" r="5"/><text class="t" x="534" y="505">IN CH3 (L)</text>
+    <circle class="pin" cx="520" cy="530" r="5"/><text class="t" x="534" y="535">IN CH5-L</text>
+    <circle class="pin" cx="520" cy="600" r="5"/><text class="t" x="534" y="605">IN CH2 (R)</text>
+    <circle class="pin" cx="520" cy="630" r="5"/><text class="t" x="534" y="635">IN CH4 (R)</text>
+    <circle class="pin" cx="520" cy="660" r="5"/><text class="t" x="534" y="665">IN CH5-R</text>
+  </g>
+  <!-- settings block -->
+  <line x1="534" y1="290" x2="766" y2="290" stroke="var(--line)"/>
+  <text class="ts" x="534" y="310">CH1-4  mode HPF · ~150 Hz</text>
+  <text class="ts" x="534" y="328">       (≈1 o'clock, log pot)</text>
+  <text class="ts" x="534" y="352">CH5    LPF 80 Hz</text>
+  <text class="ts" x="534" y="370">       subsonic ~30 Hz</text>
+  <text class="ts" x="534" y="388">       bass boost 0 dB</text>
+  <text class="ts" x="534" y="412">CH5 gain: set with remote</text>
+  <text class="ts" x="534" y="430">knob at full, pucks = 15W</text>
+  <line x1="534" y1="446" x2="766" y2="446" stroke="var(--line)"/>
+  <!-- right pins -->
+  <g>
+    <text class="t" x="700" y="154" text-anchor="end">CH1</text>
+    <text class="t" x="700" y="234" text-anchor="end">CH2</text>
+    <text class="t" x="700" y="314" text-anchor="end">CH3</text>
+    <text class="t" x="700" y="394" text-anchor="end">CH4</text>
+    <text class="t" x="700" y="604" text-anchor="end">CH5</text>
+    <text class="ts" x="766" y="704" text-anchor="end">Molex speaker harness</text>
+  </g>
+
+  <!-- ===== SPEAKER WIRES CH1-4 ===== -->
+  <g>
+    <path class="w spk" d="M780 144 H940"/><path class="w neg" d="M780 156 H940"/>
+    <text class="ts" x="790" y="136">+ White  − Wht/Blk</text>
+    <path class="w spk" d="M780 224 H940"/><path class="w neg" d="M780 236 H940"/>
+    <text class="ts" x="790" y="216">+ Gray  − Gry/Blk</text>
+    <path class="w spk" d="M780 304 H940"/><path class="w neg" d="M780 316 H940"/>
+    <text class="ts" x="790" y="296">+ Green  − Grn/Blk</text>
+    <path class="w spk" d="M780 384 H940"/><path class="w neg" d="M780 396 H940"/>
+    <text class="ts" x="790" y="376">+ Violet  − Vio/Blk</text>
+    <circle class="pin" cx="780" cy="150" r="5"/><circle class="pin" cx="780" cy="230" r="5"/>
+    <circle class="pin" cx="780" cy="310" r="5"/><circle class="pin" cx="780" cy="390" r="5"/>
+  </g>
+  <!-- satellites -->
+  <g>
+    <rect class="box" x="940" y="124" width="230" height="52"/>
+    <text class="th" x="954" y="146">MC2.5B · A-Left</text><text class="ts" x="954" y="165">8 Ω · HPF 150 Hz</text>
+    <rect class="box" x="940" y="204" width="230" height="52"/>
+    <text class="th" x="954" y="226">MC2.5B · A-Right</text><text class="ts" x="954" y="245">8 Ω · HPF 150 Hz</text>
+    <rect class="box" x="940" y="284" width="230" height="52"/>
+    <text class="th" x="954" y="306">MC2.5B · B-Left</text><text class="ts" x="954" y="325">8 Ω · HPF 150 Hz</text>
+    <rect class="box" x="940" y="364" width="230" height="52"/>
+    <text class="th" x="954" y="386">MC2.5B · B-Right</text><text class="ts" x="954" y="405">8 Ω · HPF 150 Hz</text>
+  </g>
+
+  <!-- ===== CH5 → 4 pucks parallel ===== -->
+  <circle class="pin" cx="780" cy="600" r="5"/>
+  <path class="w spk" d="M780 594 H850"/>
+  <path class="w neg" d="M780 606 H870"/>
+  <text class="ts" x="790" y="586">2× + joined</text>
+  <text class="ts" x="790" y="624">2× − joined</text>
+  <path class="w spk" d="M850 494 V674"/>
+  <path class="w neg" d="M870 506 V686"/>
+  <g>
+    <path class="w spk" d="M850 494 H940"/><path class="w neg" d="M870 506 H940"/>
+    <path class="w spk" d="M850 554 H940"/><path class="w neg" d="M870 566 H940"/>
+    <path class="w spk" d="M850 614 H940"/><path class="w neg" d="M870 626 H940"/>
+    <path class="w spk" d="M850 674 H940"/><path class="w neg" d="M870 686 H940"/>
+    <circle class="dot" cx="850" cy="554" r="4"/><circle class="dot" cx="850" cy="594" r="4"/>
+    <circle class="dot" cx="850" cy="614" r="4"/><circle class="dot" cx="870" cy="566" r="4"/>
+    <circle class="dot" cx="870" cy="606" r="4"/><circle class="dot" cx="870" cy="626" r="4"/>
+  </g>
+  <g>
+    <rect class="box" x="940" y="478" width="230" height="44"/>
+    <text class="th" x="954" y="497">TT25-8 puck 1</text><text class="ts" x="954" y="514">8 Ω · 15 W RMS</text>
+    <rect class="box" x="940" y="538" width="230" height="44"/>
+    <text class="th" x="954" y="557">TT25-8 puck 2</text><text class="ts" x="954" y="574">8 Ω · 15 W RMS</text>
+    <rect class="box" x="940" y="598" width="230" height="44"/>
+    <text class="th" x="954" y="617">TT25-8 puck 3</text><text class="ts" x="954" y="634">8 Ω · 15 W RMS</text>
+    <rect class="box" x="940" y="658" width="230" height="44"/>
+    <text class="th" x="954" y="677">TT25-8 puck 4</text><text class="ts" x="954" y="694">8 Ω · 15 W RMS</text>
+  </g>
+  <text class="ts" x="852" y="730">4 × 8 Ω parallel = 2 Ω (CH5 minimum)</text>
+  <text class="ts" x="790" y="446">CH1–4: 16 AWG OFC</text>
+  <text class="ts" x="790" y="650">trunk 14 AWG</text>
+  <text class="ts" x="878" y="470">branches 16 AWG</text>
+</svg>
+</div>
+
+<div class="legend">
+  <span><i style="background:var(--pos)"></i>+12V</span>
+  <span><i style="background:var(--gnd)"></i>Ground</span>
+  <span><i style="background:var(--rem)"></i>Remote turn-on</span>
+  <span><i style="background:repeating-linear-gradient(90deg,var(--rem) 0 3px,transparent 3px 7px)"></i>Bass knob cable</span>
+  <span><i style="background:var(--sig)"></i>RCA signal</span>
+  <span><i style="background:var(--spk)"></i>Speaker +</span>
+  <span><i style="background:repeating-linear-gradient(90deg,var(--spk) 0 6px,transparent 6px 10px)"></i>Speaker −</span>
+</div>
+
+<div class="grid">
+  <section>
+    <h2>Bass remote setup</h2>
+    <ol>
+      <li>Plug the supplied cable into the amp's <b>REMOTE</b> port and into the knob. No switch or menu setting turns it on.</li>
+      <li>The knob is a CH5 level control. It only turns the sub channel down from where the onboard CH5 gain is set.</li>
+      <li>Turn the remote knob all the way up, then set the onboard CH5 gain so the pucks are at the most you'd ever want. That gain setting is now your limit.</li>
+      <li>Use the dash knob from there. With the knob at max, you can't drive the 15 W pucks past what you set on the amp.</li>
+      <li>Leave bass boost at 0 dB. Boost is +18 dB at 45 Hz, close to the pucks' 40 Hz Fs.</li>
+    </ol>
+  </section>
+  <section>
+    <h2>Check before power-up</h2>
+    <ul>
+      <li>CH5 load across the joined + and − should read <b>1.6–1.9 Ω</b>. Anything under that means a short or mis-wired puck.</li>
+      <li>CH5 harness has 4 wires. With the amp unpowered, check that the two + wires read 0 Ω to each other, and the two − wires do too, before you join them.</li>
+      <li>Each CH1–4 load should read about <b>6–7 Ω</b> (8 Ω nominal).</li>
+      <li>Put the 80 A fuse within 18 in of the bus tap. Run 8 AWG for both +12V and ground.</li>
+      <li>Speaker wire: 16 AWG OFC to each MC2.5B. For CH5, run 14 AWG to a terminal block near the pucks, then 16 AWG out to each puck. Remote turn-on: 18 AWG.</li>
+      <li>Set the CH1–4 mode switches to <b>HPF</b> before turning the crossover pots.</li>
+    </ul>
+    <p class="flag">Rev B supersedes the repo README on two points: one MC2.5B per channel at 8 Ω (not 2 in parallel at 4 Ω), and RCA through two 1→3 splitters (DAC L → CH1/CH3/CH5-L, DAC R → CH2/CH4/CH5-R), not the 3× 1→2 tree.</p>
+  </section>
+  <section>
+    <h2>Harness colors</h2>
+    <table>
+      <tr><th>Ch</th><th>+</th><th>−</th><th>Load</th></tr>
+      <tr><td>CH1</td><td>White</td><td>White/Black</td><td>MC2.5B A-L</td></tr>
+      <tr><td>CH2</td><td>Gray</td><td>Gray/Black</td><td>MC2.5B A-R</td></tr>
+      <tr><td>CH3</td><td>Green</td><td>Green/Black</td><td>MC2.5B B-L</td></tr>
+      <tr><td>CH4</td><td>Violet</td><td>Violet/Black</td><td>MC2.5B B-R</td></tr>
+      <tr><td>CH5</td><td>2 wires, joined</td><td>2 wires, joined</td><td>4× TT25-8</td></tr>
+    </table>
+  </section>
+</div>
+</div>
+</body>
+</html>
